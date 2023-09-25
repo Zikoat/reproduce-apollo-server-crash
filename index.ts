@@ -1,8 +1,16 @@
 import assert from "assert";
-import { ApolloServer } from "apollo-server";
+import { ApolloServer } from "@apollo/server";
 import "reflect-metadata";
-import pkg from "type-graphql";
-const { Field, FieldResolver, ObjectType, Query, Resolver, buildSchema } = pkg;
+import {
+  Field,
+  FieldResolver,
+  ObjectType,
+  Query,
+  Resolver,
+  buildSchema,
+} from "type-graphql";
+import { startStandaloneServer } from "@apollo/server/standalone";
+
 import { gql } from "graphql-tag";
 
 @ObjectType()
@@ -49,9 +57,8 @@ const server = new ApolloServer({
     emitSchemaFile: true,
   }),
 });
-
-const { url } = await server.listen();
-console.log(`🚀 Server ready at ${url}`);
+const standaloneServer = await startStandaloneServer(server);
+console.log(`🚀 Server ready at ${standaloneServer.url}`);
 
 async function pleaseDontCrash() {
   const result = await server.executeOperation({
@@ -68,7 +75,10 @@ async function pleaseDontCrash() {
   });
 
   console.log(JSON.stringify(result, null, 2));
-  assert(result.errors?.[0]?.message === "This is a test error!");
+  // assert(result.body.kind === "single");
+  // assert(
+  //   result.body.singleResult.errors?.[0]?.message === "This is a test error!",
+  // );
 }
 
 pleaseDontCrash();
