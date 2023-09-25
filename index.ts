@@ -1,16 +1,9 @@
 import assert from "assert";
-import { ApolloServer } from "@apollo/server";
+import { ApolloServer } from "apollo-server";
 import "reflect-metadata";
-import {
-  Field,
-  FieldResolver,
-  ObjectType,
-  Query,
-  Resolver,
-  buildSchema,
-} from "type-graphql";
+import pkg from "type-graphql";
+const { Field, FieldResolver, ObjectType, Query, Resolver, buildSchema } = pkg;
 import { gql } from "graphql-tag";
-import { startStandaloneServer } from "@apollo/server/standalone";
 
 @ObjectType()
 class Book {
@@ -50,24 +43,17 @@ class BooksResolver {
   }
 }
 
-(async () => {
-  const server = new ApolloServer({
-    schema: await buildSchema({
-      resolvers: [LibraryResolver, BooksResolver],
-      emitSchemaFile: true,
-    }),
-  });
+const server = new ApolloServer({
+  schema: await buildSchema({
+    resolvers: [LibraryResolver, BooksResolver],
+    emitSchemaFile: true,
+  }),
+});
 
-  // startServer(server)
-  pleaseDontCrash(server);
-})();
+const { url } = await server.listen();
+console.log(`🚀 Server ready at ${url}`);
 
-async function startServer(server: ApolloServer) {
-  const { url } = await startStandaloneServer(server);
-  console.log(`🚀 Server ready at ${url}`);
-}
-
-async function pleaseDontCrash(server: ApolloServer) {
+async function pleaseDontCrash() {
   const result = await server.executeOperation({
     query: gql`
       query MyLibrary {
@@ -82,8 +68,7 @@ async function pleaseDontCrash(server: ApolloServer) {
   });
 
   console.log(JSON.stringify(result, null, 2));
-  assert(result.body.kind === "single");
-  assert(
-    result.body.singleResult.errors?.[0]?.message === "This is a test error!",
-  );
+  assert(result.errors?.[0]?.message === "This is a test error!");
 }
+
+pleaseDontCrash();
