@@ -16,6 +16,9 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 class Book {
   @Field(() => String)
   public title?: string;
+
+  @Field(() => String)
+  public author?: string;
 }
 
 @ObjectType()
@@ -42,19 +45,17 @@ class LibraryResolver {
 @Resolver(Book)
 class BooksResolver {
   @FieldResolver(() => Author)
-  public async author(): Promise<Author> {
+  public async author(): Promise<string> {
     throw Error("This is a test error!");
   }
 }
 
 (async () => {
-  const schema = await buildSchema({
-    resolvers: [LibraryResolver, BooksResolver],
-    emitSchemaFile: true,
-  });
-
   const server = new ApolloServer({
-    schema: schema,
+    schema: await buildSchema({
+      resolvers: [LibraryResolver, BooksResolver],
+      emitSchemaFile: true,
+    }),
   });
 
   // startServer(server)
@@ -72,9 +73,7 @@ async function pleaseDontCrash(server: ApolloServer) {
       query MyLibrary {
         library {
           book {
-            author {
-              name
-            }
+            author
             title
           }
         }
