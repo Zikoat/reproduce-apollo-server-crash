@@ -10,6 +10,7 @@ import {
   buildSchema,
 } from "type-graphql";
 import { gql } from "graphql-tag";
+import { startStandaloneServer } from "@apollo/server/standalone";
 
 @ObjectType()
 class Book {
@@ -49,15 +50,26 @@ class BooksResolver {
 (async () => {
   const schema = await buildSchema({
     resolvers: [LibraryResolver, BooksResolver],
+    emitSchemaFile: true,
   });
 
   const server = new ApolloServer({
     schema: schema,
   });
 
+  // startServer(server)
+  pleaseDontCrash(server);
+})();
+
+async function startServer(server: ApolloServer) {
+  const { url } = await startStandaloneServer(server);
+  console.log(`🚀 Server ready at ${url}`);
+}
+
+async function pleaseDontCrash(server: ApolloServer) {
   const result = await server.executeOperation({
     query: gql`
-      query sigurdLibrary {
+      query MyLibrary {
         library {
           book {
             author {
@@ -75,4 +87,4 @@ class BooksResolver {
   assert(
     result.body.singleResult.errors?.[0]?.message === "This is a test error!",
   );
-})();
+}

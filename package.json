@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@apollo/server": "^4.9.3",
+    "graphql": "15.8.0",
     "graphql-tag": "^2.12.6",
     "prettier": "^3.0.3",
     "reflect-metadata": "^0.1.13",
